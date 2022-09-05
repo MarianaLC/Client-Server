@@ -1,0 +1,43 @@
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <string.h>
+#define MAX 4
+
+int main (int argc, char* argv[]){
+    
+    int n,s,r;
+    char resposta[25];
+
+    //abro o pipeline para escrita
+    s = open ("/tmp/impr", O_WRONLY);
+    if (s == -1){
+        perror("Erro na abertura do fifo!");
+        exit(-1); //ou exit(erron)
+    }
+
+    r = open ("/tmp/resp", O_RDONLY);
+    if (r == -1){
+        perror("Erro na abertura do fifo de resposta cli!");
+        exit(-1); //ou exit(erron)
+    }
+
+    if (argc != 2){
+        printf("Número de argumentos inválido! \n");
+        exit(1);
+    }
+
+    if (strlen(argv[1]) != MAX){
+        printf("\n O nome do ficheiro só pode ter 4 carateres! \n");
+        exit(1);
+    }
+
+    write(s, argv[1], strlen(argv[1]));
+
+    n = read(r, resposta, sizeof(resposta));
+    write(1, resposta, n);
+
+    return(0);
+}
